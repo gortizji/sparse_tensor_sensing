@@ -22,7 +22,7 @@ Please cite our [paper](https://arxiv.org/abs/1806.10976) if you use it.
   year = {2018},
   month = {Jun},
   month = {Nov},
-  journal = {arxiv:arXiv:1806.10975}
+  journal = {arXiv:1806.10975}
   url = {https://arxiv.org/abs/1806.10976},
 }
 ```
