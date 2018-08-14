@@ -9,6 +9,7 @@ G. Ortiz-Jiménez, M. Coutino, S.P. Chepuri, and G. Leus, “[Sparse Sampling fo
 To run this code you need to install the following libraries:
 
 * [GSPBox](https://epfl-lts2.github.io/gspbox-html/)
+* [Tensorlab](https://www.tensorlab.net)
 
 ### License & citation
 
