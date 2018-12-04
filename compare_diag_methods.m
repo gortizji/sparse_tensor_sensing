@@ -3,6 +3,7 @@
 clear all; close all; clc;
 
 N = [50, 60, 70];
+beta=[2, 2, 20];
 K = 20;
 
 R = length(N);
@@ -11,7 +12,7 @@ Lmax = 180; % Maximum size to simulate
 Lmin = K + 2*(R-1); % Minimum size to simulate
 
 Lstep = 1; % Step of increase in L
-Nexp = 50; % Number of random experiments
+Nexp = 100; % Number of random experiments
 Nrand = 100;
 
 L = Lmin:Lstep:Lmax;
@@ -37,21 +38,18 @@ for j = 1:Nexp
     end
     
     parfor i = 1:Ntest
-        for r=1:R
-            alpha = ones(R,1)+1;
-            alpha(r) = K;
-            select = greedy_diag_fp_min(U, alpha, L(i));
+       for r=1:R
+            select = greedy_diag_fp_min(U, circshift(beta,r-1), L(i));
             mse_new = MSE_diag(U, select);
             if mse_new < mse_g_fp(i,j) || r == 1
                 mse_g_fp(i,j) = mse_new;
                 samples_g_fp(i,j) = number_samples(select);
             end
-        end
+       end
         
         for k = 1:Nrand
-            alpha = ones(R,1);
-            alpha(randi(R)) = K;
-            select = random_kron_sampling(N, alpha, L(i));
+            b = [1, 1, 20];
+            select = random_kron_sampling(N, circshift(b, randi(3)), L(i));
             mse_rand(i,j,k) = MSE_diag(U, select);
             samples_rand(i,j,k) = number_samples(select);
         end
@@ -86,7 +84,7 @@ xlabel('L (number of sensors)')
 ylabel('MSE')
 
 %% Plot against samples
-T =	30;
+T =	10;
 temp = [vec(samples_rand(:, T, :)), vec(mse_rand(:, T, :))];
 temp = datasample(temp, 0.1 * size(temp,1));
 figure

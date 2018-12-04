@@ -1,4 +1,4 @@
- %% SCHEME COMPARISON: DENSE CORE
+%% SCHEME COMPARISON: DENSE CORE
 % MSE accuracy of greedy_fp, random
 clear all; close all; clc;
 
@@ -13,7 +13,7 @@ Nexp = 100; % Number of random experiments
 Nrand = 100; % Number of random draws
 
 L = Lmin:Lstep:Lmax;
-
+R = length(N);
 %% Method comparison
 
 Ntest = length(L);
@@ -31,26 +31,18 @@ for j = 1:Nexp
     tic
     U = cell(R,1);
     for r = 1:R 
-        U{r} = randn(N(r),K);
+        U{r} = randn(N(r),K(r));
     end
     
     parfor i = 1:Ntest
-        for r=1:R
-            alpha = ones(R,1)+1;
-            alpha(r) = K;
             select = greedy_kron_fp_min(U, L(i), alpha);
-            mse_new = MSE_diag(U, select);
-            if mse_new < mse_g_fp(i,j) || r == 1
-                mse_g_fp(i,j) = mse_new;
-                samples_g_fp(i,j) = number_samples(select);
-            end
-        end
+            mse_new = MSE_kron(U, select);
+            mse_g_fp(i,j) = mse_new;
+            samples_g_fp(i,j) = number_samples(select);
         
         for k = 1:Nrand
-            alpha = ones(R,1);
-            alpha(randi(R)) = K;
-            select = random_kron_sampling(N, alpha, L(i));
-            mse_rand(i,j,k) = MSE_diag(U, select);
+            select = random_kron_sampling(N, alpha + K, L(i));
+            mse_rand(i,j,k) = MSE_kron(U, select);
             samples_rand(i,j,k) = number_samples(select);
         end
     end
@@ -70,7 +62,7 @@ close all
 figure(1)
 plot(L, 10*log10(plot_g_fp/best), 'LineWidth',2)
 hold all
-for p = [10,90]
+for p = [5,95]
     rand_value = prctile(abs(mse_rand), 100-p, 3);
     plot_rand = mean(rand_value,2);
     plot_rand_max = max(rand_value, [], 2);
@@ -84,7 +76,7 @@ xlabel('L (number of sensors)')
 ylabel('MSE')
 
 %% Plot against samples
-T =	30;
+T =	20;
 temp = [vec(samples_rand(:, T, :)), vec(mse_rand(:, T, :))];
 temp = datasample(temp, 0.1 * size(temp,1));
 figure
@@ -95,8 +87,6 @@ xlabel('Compression')
 ylabel('MSE')
 xtickformat('percentage')
 set(gca,'xscale','log')
-axis([1e-2, 1e2, -10, 90])
+axis([1, 1e2, -10, 60])
 set(gca,'xticklabel',arrayfun(@(x) sprintf('%.2f %%',x),get(gca,'xtick'),'un',0))
 legend('rand',  'g-fp')
-
-
